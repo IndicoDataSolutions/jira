@@ -9,7 +9,7 @@
          "name": "BUG TEMPLATE",
          "issuetype-field": "Bug",
          "projects-field": "",
-         "text": "*Summary*\n<TI>Enter summary of the problem here.</TI>\n\n*Dataset*\n<TI>Enter the dataset that triggered the problem.</TI>\n\n*Steps to Reproduce*\n<TI>Enter detailed steps to reproduce here. More detail is better.</TI>\n\n*Expected Behavior*\n<TI>Enter what should happen here.</TI>\n\n*Observed Behavior*\n<TI>Enter what actually happen here.</TI>\n\n*Additional Details*\n<TI>Enter any other details such as examples,  Attach screenshots with the attachments link below</TI>\n"
+         "text": "*Summary*\n<TI>Enter summary of the problem here.</TI>\n\n*Dataset*\n<TI>Enter the dataset that triggered the problem.</TI>\n\n*Steps to Reproduce*\n<TI>Enter detailed steps to reproduce here. More detail is better.</TI>\n\n*Expected Behavior*\n<TI>Enter what should happen here.</TI>\n\n*Observed Behavior*\n<TI>Enter what actually happen here.</TI>\n\n*Additional Details*\n<TI>Enter any other details such as examples,  Attach screenshots with the Attachment link below</TI>\n"
       },
       {
          "name": "STORY TEMPLATE",
