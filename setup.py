@@ -2,12 +2,12 @@
 from setuptools import setup
 
 setup(
-    name="{{package}}",
+    name="jira",
     version="0.1",
-    description="{{description}}",
-    author="{{author}}",
-    author_email="{{email}}",
-    packages=["{{package}}"],
+    description="CLI for jira for its dumb shenannigans",
+    author="Chris Lee",
+    author_email="chris@indico.io",
+    packages=["jira"],
     install_requires=[],
     extras_require={"test": ["pytest"]},
 )

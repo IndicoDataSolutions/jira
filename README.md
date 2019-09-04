@@ -1,8 +1,8 @@
-# {{package}}
-{{description}}
+# jira
+CLI for jira for its dumb shenannigans
 
 Built on: Python3 and Docker (alpine)<br>
-Maintained by: {{author}} [{{email}}]
+Maintained by: Chris Lee [chris@indico.io]
 
 ## Getting Started
 - Additional Python3 dependencies can be added to requirements.txt<br>

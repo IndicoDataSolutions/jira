@@ -1,6 +1,6 @@
 """
-Tests for {{package}}
+Tests for jira
 
-Author: {{author}}
-Email: {{email}}
+Author: Chris Lee
+Email: chris@indico.io
 """

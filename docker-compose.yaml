@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  {{package}}:
-    container_name: {{package}}
-    image: {{package}}
+  jira:
+    container_name: jira
+    image: jira
     build:
       context: .
       args:
@@ -11,4 +11,4 @@ services:
     tty: true
     entrypoint: ["bash"]
     volumes:
-      - .:/{{package}}
+      - .:/jira
