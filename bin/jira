@@ -66,6 +66,11 @@ def main():
 @main.command("mtcs")
 @click.argument("tickets", nargs=-1)
 def move_to_current_sprint(tickets):
+    """
+    Argument [tickets] as space separated DEV-{ticket} values
+    Result:
+        You should get a 204 status result and the tickets will be moved into the currently active sprint.
+    """
     sprint = JIRAClient.get_current_sprint()
     click.secho(f"Moving {tickets} to sprint {sprint['name']}", fg="green")
     JIRAClient.move_ticket_to_sprint(tickets, sprint["id"])
