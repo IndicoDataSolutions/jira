@@ -17,7 +17,8 @@ class JIRAClient(object):
             cls.BASE_URL + path, headers=cls.DEFAULT_HEADERS, **request_kwargs
         )
         click.secho(
-            f"{method.upper()}:{path} with status {response.status_code}", fg="yellow"
+            f"{method.upper()}:{path} with status {response.status_code}",
+            fg="bright_black",
         )
 
         if response.status_code >= 400:
@@ -57,6 +58,16 @@ class JIRAClient(object):
             json={"issues": [f"DEV-{ticket}" for ticket in tickets]},
         )
 
+    @classmethod
+    def get_tickets_by_type(cls, ticket_type, sprint_id=None, board_id=BOARD_ID):
+        if sprint_id is None:
+            sprint_id = cls.get_current_sprint()["id"]
+
+        return cls.get(
+            f"/rest/agile/1.0/board/{board_id}/sprint/{sprint_id}/issue",
+            params={"jql": f"issueType = {ticket_type}"},
+        )
+
 
 @click.group()
 def main():
@@ -74,6 +85,17 @@ def move_to_current_sprint(tickets):
     sprint = JIRAClient.get_current_sprint()
     click.secho(f"Moving {tickets} to sprint {sprint['name']}", fg="green")
     JIRAClient.move_ticket_to_sprint(tickets, sprint["id"])
+
+
+@main.command("release")
+def get_current_release():
+    issues = JIRAClient.get_tickets_by_type("Release")["issues"]
+    click.secho("Release in this sprint", fg="red")
+    for issue in issues:
+        click.secho(
+            f"{issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
+            fg="cyan",
+        )
 
 
 if __name__ == "__main__":
