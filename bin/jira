@@ -22,7 +22,7 @@ class JIRAClient(object):
         )
 
         if response.status_code >= 400:
-            click.secho(response.status_code, response.content, fg="red")
+            click.secho(f"{response.status_code}, {response.content}", fg="red")
         else:
             try:
                 return response.json()
@@ -60,12 +60,31 @@ class JIRAClient(object):
 
     @classmethod
     def get_tickets_by_type(cls, ticket_type, sprint_id=None, board_id=BOARD_ID):
-        if sprint_id is None:
-            sprint_id = cls.get_current_sprint()["id"]
-
         return cls.get(
-            f"/rest/agile/1.0/board/{board_id}/sprint/{sprint_id}/issue",
-            params={"jql": f"issueType = {ticket_type}"},
+            f"/rest/agile/1.0/board/{board_id}/issue",
+            params={"jql": f'issueType = {ticket_type} AND status = "In Progress"'},
+        )
+
+    @classmethod
+    def block_issue(cls, blocked, blocking):
+        cls.put(
+            f"/rest/api/2/issue/{blocking}",
+            json={
+                "update": {
+                    "issuelinks": [
+                        {
+                            "add": {
+                                "type": {
+                                    "name": "Blocks",
+                                    "inward": "is blocked by",
+                                    "outward": "blocks",
+                                },
+                                "outwardIssue": {"key": blocked},
+                            }
+                        }
+                    ]
+                }
+            },
         )
 
 
@@ -91,11 +110,42 @@ def move_to_current_sprint(tickets):
 def get_current_release():
     issues = JIRAClient.get_tickets_by_type("Release")["issues"]
     click.secho("Release in this sprint", fg="red")
-    for issue in issues:
+    for idx, issue in enumerate(issues):
+        # print(issue)
         click.secho(
-            f"{issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
+            f"{idx}: {issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
             fg="cyan",
         )
+
+
+@main.command("add-to-release")
+@click.argument("ticket")
+def add_to_current_release(ticket):
+    issues = JIRAClient.get_tickets_by_type("Release")["issues"]
+    if len(issues) > 1:
+        click.secho("Select Release")
+        for idx, issue in enumerate(issues):
+            click.secho(
+                f"{idx}: {issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
+                fg="cyan",
+            )
+        result = int(input("Selection:?"))
+        issue = issues[result]
+    elif len(issues) == 1:
+        issue = issues[0]
+    else:
+        click.secho("Couldn't find a release", fg="red")
+        return
+
+    if not ticket.startswith("DEV"):
+        ticket = f"DEV-{ticket}"
+
+    blocked = issue["key"]
+    blocking = ticket
+
+    click.secho(f"Blocking {blocked} on {blocking}")
+
+    JIRAClient.block_issue(blocked, blocking)
 
 
 if __name__ == "__main__":

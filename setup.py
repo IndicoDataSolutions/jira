@@ -2,8 +2,8 @@
 from setuptools import setup
 
 setup(
-    name="jira",
-    version="0.2",
+    name="jeera",
+    version="0.3",
     description="CLI for jira for its dumb shenannigans",
     author="Chris Lee",
     author_email="chris@indico.io",
