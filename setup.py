@@ -8,6 +8,7 @@ setup(
     author="Chris Lee",
     author_email="chris@indico.io",
     packages=["jira"],
-    install_requires=[],
+    install_requires=["requests==2.10.0", "click==7.0"],
     extras_require={"test": ["pytest"]},
+    scripts=["bin/jira"],
 )
