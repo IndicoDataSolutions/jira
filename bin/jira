@@ -146,31 +146,6 @@ def get_current_release():
 @main.command("add-to-release")
 @click.argument("ticket")
 def add_to_current_release(ticket):
-    issues = JIRAClient.get_tickets_by_type("Release")["issues"]
-    if len(issues) > 1:
-        click.secho("Select Release Ticket")
-        for idx, issue in enumerate(issues):
-            click.secho(
-                f"{idx}: {issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
-                fg="cyan",
-            )
-        result = int(input("Selection:?"))
-        issue = issues[result]
-    elif len(issues) == 1:
-        issue = issues[0]
-    else:
-        click.secho("Couldn't find a release", fg="red")
-        return
-
-    if not ticket.startswith("DEV"):
-        ticket = f"DEV-{ticket}"
-
-    blocked = issue["key"]
-    blocking = ticket
-
-    click.secho(f"Blocking {blocked} on {blocking}")
-
-    JIRAClient.block_issue(blocked, blocking)
     versions = JIRAClient.get_project_versions()
 
     if not versions:
