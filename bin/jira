@@ -146,6 +146,9 @@ def get_current_release():
 @main.command("add-to-release")
 @click.argument("ticket")
 def add_to_current_release(ticket):
+    if not ticket.startswith("DEV"):
+        ticket = f"DEV-{ticket}"
+
     versions = JIRAClient.get_project_versions()
 
     if not versions:
@@ -159,7 +162,7 @@ def add_to_current_release(ticket):
     else:
         version = versions[0]
 
-    JIRAClient.assign_version_to_issue(blocking, version["id"])
+    JIRAClient.assign_version_to_issue(ticket, version["id"])
 
 
 if __name__ == "__main__":

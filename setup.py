@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="jeera",
-    version="0.4",
+    version="0.5",
     description="CLI for jira for its dumb shenannigans",
     author="Chris Lee",
     author_email="chris@indico.io",
