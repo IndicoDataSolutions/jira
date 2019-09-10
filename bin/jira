@@ -66,6 +66,20 @@ class JIRAClient(object):
         )
 
     @classmethod
+    def get_project_versions(cls):
+        versions = cls.get("/rest/api/2/project/DEV/versions")
+        return sorted(
+            [x for x in versions if not x["released"]], key=lambda x: x["startDate"]
+        )
+
+    @classmethod
+    def assign_version_to_issue(cls, ticket, version):
+        return cls.put(
+            f"/rest/api/2/issue/{ticket}",
+            json={"update": {"fixVersions": [{"set": [{"id": version}]}]}},
+        )
+
+    @classmethod
     def block_issue(cls, blocked, blocking):
         cls.put(
             f"/rest/api/2/issue/{blocking}",
@@ -85,6 +99,15 @@ class JIRAClient(object):
                     ]
                 }
             },
+        )
+
+
+def print_versions(versions):
+    click.secho("Open Release Versions")
+    for idx, version in enumerate(versions):
+        click.secho(
+            f"{idx}: Date: {version['startDate']} - Name: {version['name']}  https://indicodata.atlassian.net/projects/DEV/versions/{version['id']}/tab/release-report-all-issues",
+            fg="cyan",
         )
 
 
@@ -109,13 +132,15 @@ def move_to_current_sprint(tickets):
 @main.command("release")
 def get_current_release():
     issues = JIRAClient.get_tickets_by_type("Release")["issues"]
-    click.secho("Release in this sprint", fg="red")
+    click.secho("Release Tickets in this sprint", fg="red")
     for idx, issue in enumerate(issues):
-        # print(issue)
         click.secho(
             f"{idx}: {issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
             fg="cyan",
         )
+
+    versions = JIRAClient.get_project_versions()
+    print_versions(versions)
 
 
 @main.command("add-to-release")
@@ -123,7 +148,7 @@ def get_current_release():
 def add_to_current_release(ticket):
     issues = JIRAClient.get_tickets_by_type("Release")["issues"]
     if len(issues) > 1:
-        click.secho("Select Release")
+        click.secho("Select Release Ticket")
         for idx, issue in enumerate(issues):
             click.secho(
                 f"{idx}: {issue['fields']['summary']}: https://indicodata.atlassian.net/browse/{issue['key']}",
@@ -146,7 +171,22 @@ def add_to_current_release(ticket):
     click.secho(f"Blocking {blocked} on {blocking}")
 
     JIRAClient.block_issue(blocked, blocking)
+    versions = JIRAClient.get_project_versions()
+
+    if not versions:
+        click.secho("No project release version found", fg="red")
+        return
+
+    if len(versions) > 1:
+        print_versions(versions)
+        result = int(input("Selection:?"))
+        version = versions[result]
+    else:
+        version = versions[0]
+
+    JIRAClient.assign_version_to_issue(blocking, version["id"])
 
 
 if __name__ == "__main__":
     main()
+
