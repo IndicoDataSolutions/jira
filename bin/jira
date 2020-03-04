@@ -160,18 +160,18 @@ def get_current_release():
 
 
 @main.command("atr")
-@click.argument("ticket")
-def add_to_current_release(ticket):
-    if not ticket.startswith("DEV"):
-        ticket = f"DEV-{ticket}"
-
+@click.argument("tickets", nargs=-1)
+def add_to_current_release(tickets):
     version = JIRAClient.get_next_version()
-
     if not version:
         click.secho("No project release version found", fg="red")
         return
 
-    JIRAClient.assign_version_to_issue(ticket, version["id"])
+    for ticket in tickets:
+        if not ticket.startswith("DEV"):
+            ticket = f"DEV-{ticket}"
+
+        JIRAClient.assign_version_to_issue(ticket, version["id"])
 
 
 if __name__ == "__main__":
