@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import json
 import datetime
 import os
 import requests
@@ -98,6 +99,17 @@ class JIRAClient(object):
         )
 
     @classmethod
+    def assign_story_points(cls, ticket, points):
+        return cls.put(
+            f"/rest/api/2/issue/{ticket}",
+            json={"update": {"customfield_10054": [{"set": points}]}},
+        )
+
+    @classmethod
+    def get_ticket(cls, ticket):
+        return cls.get(f"/rest/api/2/issue/{ticket}")
+
+    @classmethod
     def block_issue(cls, blocked, blocking):
         cls.put(
             f"/rest/api/2/issue/{blocking}",
@@ -174,6 +186,51 @@ def add_to_current_release(tickets):
         JIRAClient.assign_version_to_issue(ticket, version["id"])
 
 
+@main.command("get")
+@click.argument("ticket")
+def get_ticket(ticket):
+    if not ticket.startswith("DEV"):
+        ticket = f"DEV-{ticket}"
+
+    click.secho(json.dumps(JIRAClient.get_ticket(ticket), indent=4))
+
+
+@main.command("point")
+@click.argument("ticket")
+@click.argument("points", type=int)
+def assign_story_points(ticket, points):
+    if not ticket.startswith("DEV"):
+        ticket = f"DEV-{ticket}"
+
+    assert points > 0
+    JIRAClient.assign_story_points(ticket, points)
+
+
+@main.command("point_from_csv")
+@click.argument("path")
+@click.argument("path")
+def points_from_csv(path):
+    try:
+        import pandas as pd
+    except ImportError:
+        click.secho("Must install pandas with pip3 install pandas", fg="red")
+
+    df = pd.read_csv(path)
+    keys = df["Key"].tolist()
+    points = df["Points"].tolist()
+    for key, point in zip(keys, points):
+        if not point:
+            continue
+        try:
+            point = float(point)
+        except ValueError:
+            print(f"Skipping {key} Point is not a number {point}")
+
+        if point < 0.5:
+            print(f"Skipping {key} Invalid point value {point}. Must be >= .5")
+
+        JIRAClient.assign_story_points(key, point)
+
+
 if __name__ == "__main__":
     main()
-
