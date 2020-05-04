@@ -6,4 +6,4 @@ CLI for jira for its dumb shenannigans
 Author: Chris Lee
 Email: chris@indico.io
 """
-version = 0.8
+version = "0.8.1"

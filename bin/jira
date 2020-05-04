@@ -208,7 +208,6 @@ def assign_story_points(ticket, points):
 
 @main.command("point_from_csv")
 @click.argument("path")
-@click.argument("path")
 def points_from_csv(path):
     try:
         import pandas as pd
@@ -223,8 +222,9 @@ def points_from_csv(path):
             continue
         try:
             point = float(point)
-        except ValueError:
+        except (ValueError, TypeError):
             print(f"Skipping {key} Point is not a number {point}")
+            continue
 
         if point < 0.5:
             print(f"Skipping {key} Invalid point value {point}. Must be >= .5")
